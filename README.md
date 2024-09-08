@@ -1,4 +1,4 @@
-# Schism
+# Omega
 
 A flat registration system written in Python with Flask.
 
@@ -55,8 +55,8 @@ $ sudo vi /etc/ssh/sshd_config.d/50-cloud-init.conf
 ```
 
 ```shell
-$ git clone https://github.com/mpbsd/schism
-$ cd ~/schism
+$ git clone https://github.com/mpbsd/omega
+$ cd ~/omega
 $ make ready
 ```
 

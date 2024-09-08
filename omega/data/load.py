@@ -3,26 +3,29 @@ from datetime import date, datetime
 
 
 class CPF:  # {{{1
-    re_cpfnr = re.compile(r"\b(\d{3})\.?(\d{3})\.?(\d{3})-?(\d{2})\b")
+    cpf_pattern_1 = r"([0-9]{3})([0-9]{3})([0-9]{3})([0-9]{2})"
+    cpf_pattern_2 = r"([0-9]{3})\.([0-9]{3})\.([0-9]{3})-([0-9]{2})"
 
-    def __init__(self, cpfnr: str) -> None:  # {{{2
-        self.cpfnr = cpfnr  # }}}
+    re_cpfnr = re.compile(r"\b(%s|%s)\b" % (cpf_pattern_1, cpf_pattern_2))
+
+    def __init__(self, cpf: str) -> None:  # {{{2
+        self.cpf = cpf  # }}}
 
     def pattern_match(self) -> bool:  # {{{2
         B = False
-        if self.re_cpfnr.match(self.cpfnr):
+        if self.re_cpfnr.match(self.cpf):
             B = True
         return B  # }}}
 
-    def strfmt(self, fmt: str) -> str | None:  # {{{2
-        cpf_strfmt = None
+    def strfmt(self, sty: str) -> str | None:  # {{{2
         style = {
-            "raw": self.re_cpfnr.sub(r"\1\2\3\4", self.cpfnr),
-            "fmt": self.re_cpfnr.sub(r"\1.\2.\3-\4", self.cpfnr),
+            "raw": self.re_cpfnr.sub(r"\2\3\4\5", self.cpf),
+            "std": self.re_cpfnr.sub(r"\2.\3.\4-\5", self.cpf),
         }
-        if self.pattern_match() and fmt in style.keys():
-            cpf_strfmt = style[fmt]
-        return cpf_strfmt  # }}}
+        fmt = None
+        if self.pattern_match() and sty in style.keys():
+            fmt = style[sty]
+        return fmt  # }}}
 
     def digits_match(self) -> bool:  # {{{2
         B = False
@@ -41,8 +44,11 @@ class CPF:  # {{{1
                     B = True
         return B  # }}}
 
-    def __repr__(self) -> bool:  # {{{2
-        return self.strfmt("fmt")  # }}} # }}}
+    def __repr__(self) -> str:  # {{{2
+        fmt = "None"
+        if self.pattern_match():
+            fmt = self.strfmt("std")
+        return fmt  # }}} # }}}
 
 
 class DATE:  # {{{1
@@ -50,15 +56,33 @@ class DATE:  # {{{1
     re_M = r"0[1-9]|1[012]"
     re_Y = r"[0-9]{4}"
 
-    dt_1 = re.compile(r"\b(%s)[/-]?(%s)[/-]?(%s)\b" % (re_Y, re_M, re_D))
-    dt_2 = re.compile(r"\b(%s)[/-]?(%s)[/-]?(%s)\b" % (re_D, re_M, re_Y))
+    dt_pattern_1 = f"({re_Y})({re_M})({re_D})"
+    dt_pattern_2 = f"({re_D})({re_M})({re_Y})"
+    dt_pattern_3 = f"({re_Y})/({re_M})/({re_D})"
+    dt_pattern_4 = f"({re_D})/({re_M})/({re_Y})"
+    dt_pattern_5 = f"({re_Y})-({re_M})-({re_D})"
+    dt_pattern_6 = f"({re_D})-({re_M})-({re_Y})"
+
+    dt_1 = re.compile(r"\b%s\b" % dt_pattern_1)
+    dt_2 = re.compile(r"\b%s\b" % dt_pattern_2)
+    dt_3 = re.compile(r"\b%s\b" % dt_pattern_3)
+    dt_4 = re.compile(r"\b%s\b" % dt_pattern_4)
+    dt_5 = re.compile(r"\b%s\b" % dt_pattern_5)
+    dt_6 = re.compile(r"\b%s\b" % dt_pattern_6)
 
     def __init__(self, date_str: str) -> None:  # {{{2
         self.date_str = date_str  # }}}
 
     def patterns_match(self) -> bool:  # {{{2
         B = False
-        if self.dt_1.match(self.date_str) or self.dt_2.match(self.date_str):
+        if (
+            self.dt_1.match(self.date_str)
+            or self.dt_2.match(self.date_str)
+            or self.dt_3.match(self.date_str)
+            or self.dt_4.match(self.date_str)
+            or self.dt_5.match(self.date_str)
+            or self.dt_6.match(self.date_str)
+        ):
             B = True
         return B  # }}}
 
@@ -69,10 +93,26 @@ class DATE:  # {{{1
                 Y = self.dt_1.match(self.date_str).group(1)
                 M = self.dt_1.match(self.date_str).group(2)
                 D = self.dt_1.match(self.date_str).group(3)
-            else:
+            elif self.dt_2.match(self.date_str):
                 Y = self.dt_2.match(self.date_str).group(3)
                 M = self.dt_2.match(self.date_str).group(2)
                 D = self.dt_2.match(self.date_str).group(1)
+            elif self.dt_3.match(self.date_str):
+                Y = self.dt_3.match(self.date_str).group(1)
+                M = self.dt_3.match(self.date_str).group(2)
+                D = self.dt_3.match(self.date_str).group(3)
+            elif self.dt_4.match(self.date_str):
+                Y = self.dt_4.match(self.date_str).group(3)
+                M = self.dt_4.match(self.date_str).group(2)
+                D = self.dt_4.match(self.date_str).group(1)
+            elif self.dt_5.match(self.date_str):
+                Y = self.dt_5.match(self.date_str).group(1)
+                M = self.dt_5.match(self.date_str).group(2)
+                D = self.dt_5.match(self.date_str).group(3)
+            else:
+                Y = self.dt_6.match(self.date_str).group(3)
+                M = self.dt_6.match(self.date_str).group(2)
+                D = self.dt_6.match(self.date_str).group(1)
             DISSECT = Y, M, D
         return DISSECT  # }}}
 
@@ -98,37 +138,36 @@ class DATE:  # {{{1
             is_leap_year = False
             if (y % 4 == 0 and y % 100 != 0) or (y % 400 == 0):
                 is_leap_year = True
-            if (is_leap_year is True) and (m == 2):
+            if is_leap_year and (m == 2):
                 ndays[m] += 1
             if d <= ndays[m]:
                 B = True
         return B  # }}}
 
-    def stdfmt(self) -> str | None:  # {{{2
-        std_format = None
+    def isofmt(self) -> str | None:  # {{{2
+        fmt = None
         if self.exists():
             Y, M, D = self.dissect()
-            std_format = f"{Y}{M}{D}"
-        return std_format  # }}}
+            fmt = f"{Y}{M}{D}"
+        return fmt  # }}}
 
     def date_obj(self) -> date | None:  # {{{2
-        dobj = None
+        obj = None
         if self.exists():
-            dobj = datetime.fromisoformat(self.stdfmt())
-        return dobj  # }}}
+            obj = datetime.fromisoformat(self.isofmt())
+        return obj  # }}}
 
-    def strfmt(self, fmt: str) -> str | None:  # {{{2
-        strfmt = None
-        if self.exists():
-            style = {
-                "yyyy-mm-dd": "%Y-%m-%d",
-                "yyyy/mm/dd": "%Y/%m/%d",
-                "dd-mm-yyyy": "%d-%m-%Y",
-                "dd/mm/yyyy": "%d/%m/%Y",
-            }
-            if fmt in style.keys():
-                strfmt = self.date_obj().strftime(style[fmt])
-        return strfmt  # }}}
+    def strfmt(self, sty: str) -> str | None:  # {{{2
+        style = {
+            "yyyy-mm-dd": "%Y-%m-%d",
+            "yyyy/mm/dd": "%Y/%m/%d",
+            "dd-mm-yyyy": "%d-%m-%Y",
+            "dd/mm/yyyy": "%d/%m/%Y",
+        }
+        fmt = None
+        if self.exists() and sty in style.keys():
+            fmt = self.date_obj().strftime(style[sty])
+        return fmt  # }}}
 
     def is_not_in_the_future(self) -> bool:  # {{{2
         B = False
@@ -145,7 +184,10 @@ class DATE:  # {{{1
         return B  # }}}
 
     def __repr__(self) -> str:  # {{{2
-        return self.stdfmt()  # }}} # }}}
+        fmt = "None"
+        if self.exists():
+            fmt = self.isofmt()
+        return fmt  # }}} # }}}
 
 
 def beancount(dt1: date, dt2: date) -> str:  # {{{
@@ -156,7 +198,7 @@ def beancount(dt1: date, dt2: date) -> str:  # {{{
     return beans  # }}}
 
 
-save_the_date = {  # {{{
+save_the_date = {
     "registration": {
         "opening": DATE("20240615"),
         "closing": DATE("20240715"),
@@ -165,10 +207,10 @@ save_the_date = {  # {{{
         "1": DATE("20240914"),
         "2": DATE("20241005"),
     },
-}  # }}}
+}
 
 
-payload = {  # {{{
+payload = {
     "edition": 2024,
     "quota": 10,
     "save_the_date": save_the_date,
@@ -192,4 +234,4 @@ payload = {  # {{{
             ),
         },
     },
-}  # }}}
+}
