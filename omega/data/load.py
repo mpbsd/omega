@@ -6,32 +6,49 @@ class CPF:  # {{{1
     cpf_pattern_1 = r"([0-9]{3})([0-9]{3})([0-9]{3})([0-9]{2})"
     cpf_pattern_2 = r"([0-9]{3})\.([0-9]{3})\.([0-9]{3})-([0-9]{2})"
 
-    re_cpfnr = re.compile(r"\b(%s|%s)\b" % (cpf_pattern_1, cpf_pattern_2))
+    cpf_1 = re.compile(r"\b%s\b" % cpf_pattern_1)
+    cpf_2 = re.compile(r"\b%s\b" % cpf_pattern_2)
 
     def __init__(self, cpf: str) -> None:  # {{{2
         self.cpf = cpf  # }}}
 
-    def pattern_match(self) -> bool:  # {{{2
+    def patterns_match(self) -> bool:  # {{{2
         B = False
-        if self.re_cpfnr.match(self.cpf):
+        if self.cpf_1.match(self.cpf) or self.cpf_2.match(self.cpf):
             B = True
         return B  # }}}
 
+    def dissect(self) -> tuple[str] | None:  # {{{2
+        DISSECT = None
+        if self.patterns_match():
+            if self.cpf_1.match(self.cpf):
+                G1 = self.cpf_1.match(self.cpf).group(1)
+                G2 = self.cpf_1.match(self.cpf).group(2)
+                G3 = self.cpf_1.match(self.cpf).group(3)
+                G4 = self.cpf_1.match(self.cpf).group(4)
+            else:
+                G1 = self.cpf_2.match(self.cpf).group(1)
+                G2 = self.cpf_2.match(self.cpf).group(2)
+                G3 = self.cpf_2.match(self.cpf).group(3)
+                G4 = self.cpf_2.match(self.cpf).group(4)
+            DISSECT = G1, G2, G3, G4
+        return DISSECT  # }}}
+
     def strfmt(self, sty: str) -> str | None:  # {{{2
-        style = {
-            "raw": self.re_cpfnr.sub(r"\2\3\4\5", self.cpf),
-            "std": self.re_cpfnr.sub(r"\2.\3.\4-\5", self.cpf),
-        }
         fmt = None
-        if self.pattern_match() and sty in style.keys():
-            fmt = style[sty]
+        if self.patterns_match() and sty in ["raw", "std"]:
+            G1, G2, G3, G4 = self.dissect()
+            if sty == "raw":
+                fmt = f"{G1}{G2}{G3}{G4}"
+            else:
+                fmt = f"{G1}.{G2}.{G3}-{G4}"
         return fmt  # }}}
 
     def digits_match(self) -> bool:  # {{{2
         B = False
-        if self.pattern_match():
+        blacklist = ["00000000000"]
+        if self.patterns_match():
             cpf = self.strfmt("raw")
-            blacklist = ["00000000000"]
             if cpf not in blacklist:
                 D = [0, 0]
                 for i in range(9):
@@ -40,13 +57,12 @@ class CPF:  # {{{1
                     D[1] += (11 - i) * int(cpf[i])
                 D0_is_OK = ((10 * D[0]) % 11) % 10 == int(cpf[9])
                 D1_is_OK = ((10 * D[1]) % 11) % 10 == int(cpf[10])
-                if D0_is_OK and D1_is_OK:
-                    B = True
+                B = D0_is_OK and D1_is_OK
         return B  # }}}
 
     def __repr__(self) -> str:  # {{{2
         fmt = "None"
-        if self.pattern_match():
+        if self.patterns_match():
             fmt = self.strfmt("std")
         return fmt  # }}} # }}}
 
@@ -154,7 +170,7 @@ class DATE:  # {{{1
     def date_obj(self) -> date | None:  # {{{2
         obj = None
         if self.exists():
-            obj = datetime.fromisoformat(self.isofmt())
+            obj = date.fromisoformat(self.isofmt())
         return obj  # }}}
 
     def strfmt(self, sty: str) -> str | None:  # {{{2
@@ -190,9 +206,11 @@ class DATE:  # {{{1
         return fmt  # }}} # }}}
 
 
-def beancount(dt1: date, dt2: date) -> str:  # {{{
-    if dt1 < dt2:
-        beans = f"{(dt2 - dt1).days} dias"
+def beancount(dt1: DATE, dt2: DATE) -> str:  # {{{
+    DT1 = dt1.date_obj()
+    DT2 = dt2.date_obj()
+    if DT1 < DT2:
+        beans = f"{(DT2 - DT1).days} dias"
     else:
         beans = "---"
     return beans  # }}}
@@ -209,6 +227,7 @@ save_the_date = {
     },
 }
 
+today = DATE(date.today().strftime("%Y%m%d"))
 
 payload = {
     "edition": 2024,
@@ -217,21 +236,17 @@ payload = {
     "days_until": {
         "registration": {
             "opening": beancount(
-                datetime.today(),
-                save_the_date["registration"]["opening"].date_obj(),
+                today,
+                save_the_date["registration"]["opening"],
             ),
             "closing": beancount(
-                datetime.today(),
-                save_the_date["registration"]["closing"].date_obj(),
+                today,
+                save_the_date["registration"]["closing"],
             ),
         },
         "exam": {
-            "1": beancount(
-                datetime.today(), save_the_date["exam"]["1"].date_obj()
-            ),
-            "2": beancount(
-                datetime.today(), save_the_date["exam"]["2"].date_obj()
-            ),
+            "1": beancount(today, save_the_date["exam"]["1"]),
+            "2": beancount(today, save_the_date["exam"]["2"]),
         },
     },
 }
