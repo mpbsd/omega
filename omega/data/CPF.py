@@ -5,8 +5,8 @@ class CPF:
     cpf_pattern_1 = r"([0-9]{3})([0-9]{3})([0-9]{3})([0-9]{2})"
     cpf_pattern_2 = r"([0-9]{3})\.([0-9]{3})\.([0-9]{3})-([0-9]{2})"
 
-    cpf_1 = re.compile(r"\b%s\b" % cpf_pattern_1)
-    cpf_2 = re.compile(r"\b%s\b" % cpf_pattern_2)
+    cpf_1 = re.compile(r"^%s$" % cpf_pattern_1)
+    cpf_2 = re.compile(r"^%s$" % cpf_pattern_2)
 
     def __init__(self, cpf: str) -> None:
         self.cpf = cpf  # }}}

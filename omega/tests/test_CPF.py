@@ -19,11 +19,19 @@ def test_CPF():
         (CPF("000 00000191"), 0),
         (CPF("000000 001 91"), 0),
         (CPF("000000 00191"), 0),
+        (CPF(" 000.000.001-91"), 0),
+        (CPF("000.000.001-91 "), 0),
+        (CPF(" 000.000.001-91 "), 0),
+        (CPF(" 00000000191"), 0),
+        (CPF("00000000191 "), 0),
+        (CPF(" 00000000191 "), 0),
     ]
 
-    state = [[1 for j in range(5)] for i in range(14)]
+    N = len(cpf)
 
-    for i in range(14):
+    state = [[1 for j in range(5)] for i in range(N)]
+
+    for i in range(N):
         state[i][0] = 1 if cpf[i][0].patterns_match() == True else 0
         state[i][1] = (
             1 if cpf[i][0].dissect() == ("000", "000", "001", "91") else 0
@@ -32,7 +40,7 @@ def test_CPF():
         state[i][3] = 1 if cpf[i][0].strfmt("std") == "000.000.001-91" else 0
         state[i][4] = 1 if cpf[i][0].digits_match() == True else 0
 
-    for i in range(14):
+    for i in range(N):
         print(
             "%02d: %2d %2d %2d %2d %2d | %s"
             % (
