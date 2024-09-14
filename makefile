@@ -30,6 +30,10 @@ black:
 clean:
 	find . -type d -name __pycache__ | xargs rm -rf
 
+tests:
+	python3 -m omega.tests.test_CPF
+	python3 -m omega.tests.test_DATE
+
 ready:
 	python3 -m venv venv; \
 	. venv/bin/activate; \
@@ -37,4 +41,4 @@ ready:
 	pip install -r requirements.txt; \
 	deactivate
 
-.PHONY: build black clean ready
+.PHONY: build black clean tests ready

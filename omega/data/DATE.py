@@ -14,12 +14,12 @@ class DATE:
     dt_pattern_5 = f"({re_Y})-({re_M})-({re_D})"
     dt_pattern_6 = f"({re_D})-({re_M})-({re_Y})"
 
-    dt_1 = re.compile(r"\b%s\b" % dt_pattern_1)
-    dt_2 = re.compile(r"\b%s\b" % dt_pattern_2)
-    dt_3 = re.compile(r"\b%s\b" % dt_pattern_3)
-    dt_4 = re.compile(r"\b%s\b" % dt_pattern_4)
-    dt_5 = re.compile(r"\b%s\b" % dt_pattern_5)
-    dt_6 = re.compile(r"\b%s\b" % dt_pattern_6)
+    dt_1 = re.compile(r"^%s$" % dt_pattern_1)
+    dt_2 = re.compile(r"^%s$" % dt_pattern_2)
+    dt_3 = re.compile(r"^%s$" % dt_pattern_3)
+    dt_4 = re.compile(r"^%s$" % dt_pattern_4)
+    dt_5 = re.compile(r"^%s$" % dt_pattern_5)
+    dt_6 = re.compile(r"^%s$" % dt_pattern_6)
 
     def __init__(self, date_str: str) -> None:
         self.date_str = date_str
@@ -119,13 +119,6 @@ class DATE:
         if self.exists() and sty in style.keys():
             fmt = self.date_obj().strftime(style[sty])
         return fmt
-
-    def is_not_in_the_future(self) -> bool:
-        B = False
-        if self.exists():
-            if self.date_obj() <= datetime.now():
-                B = True
-        return B
 
     def year_belongs_to_selected_range(self) -> bool:
         B = False
