@@ -9,7 +9,7 @@ class CPF:
     cpf_2 = re.compile(r"^%s$" % cpf_pattern_2)
 
     def __init__(self, cpf: str) -> None:
-        self.cpf = cpf  # }}}
+        self.cpf = cpf
 
     def patterns_match(self) -> bool:
         B = False
