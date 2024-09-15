@@ -3,11 +3,11 @@ def create_app():
 
     omega = Flask(__name__)
 
-    from omega.conf.setup import Config
+    from omega.config.setup import Config
 
     omega.config.from_object(Config)
 
-    from omega.conf.boost import login_manager
+    from omega.config.boost import login_manager
     from omega.mold.models import Professor
 
     login_manager.init_app(omega)
@@ -16,15 +16,15 @@ def create_app():
     def load_user(taxnr):
         return Professor.query.get(taxnr)
 
-    from omega.conf.boost import db
+    from omega.config.boost import db
 
     db.init_app(omega)
 
-    from omega.conf.boost import migrate
+    from omega.config.boost import migrate
 
     migrate.init_app(omega, db)
 
-    from omega.conf.boost import mail
+    from omega.config.boost import mail
 
     mail.init_app(omega)
 
