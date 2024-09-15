@@ -1,5 +1,5 @@
 from datetime import date
-from omega.data.DATE import DATE, beancount
+from app.data.DATE import DATE, beancount
 
 save_the_date = {
     "registration": {

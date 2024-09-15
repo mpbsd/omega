@@ -1,6 +1,6 @@
 from functools import reduce
 
-from omega.data.CPF import CPF
+from app.data.CPF import CPF
 
 
 def test_CPF():

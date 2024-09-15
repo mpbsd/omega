@@ -1,6 +1,6 @@
 from functools import reduce
 
-from omega.data.DATE import DATE
+from app.data.DATE import DATE
 
 
 def test_DATE():
